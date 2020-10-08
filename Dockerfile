@@ -1,5 +1,5 @@
-FROM node:12-alpine as frontend-dev
-LABEL maintainer umpalumpa
+FROM node:12-alpine as homeportal-front-dev
+LABEL maintainer jan
 COPY frontend/ /app
 WORKDIR /app
 RUN yarn install

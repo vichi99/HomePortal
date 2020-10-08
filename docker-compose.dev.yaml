@@ -1,10 +1,11 @@
 version: "3.8"
 services:
-  frontend:
-    container_name: home_portal_ui
+  homeportal-front-dev:
     build:
       context: .
-      target: frontend-dev
+      target: homeportal-front-dev
+    container_name: homeportal-front-dev
+    image: homeportal-front-dev
     ports:
       - "3000:3000"
     volumes:
@@ -12,3 +13,20 @@ services:
       - /app/node_modules
     tty: true
     stdin_open: true
+    # networks:
+    #   - host
+    # depends_on:
+    #   - mosquitto
+  # mosquitto:
+  #   container_name: mosquitto
+  #   image: eclipse-mosquitto:1.6.12
+  #   volumes:
+  #     - ./backend/mqtt/config:/mosquitto/config/
+  #   ports:
+  #     - "1883:1883"
+  #     - "8080:8080"
+  #   networks:
+  #     - default
+  #   restart: unless-stopped
+# networks:
+#   host:
