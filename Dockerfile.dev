@@ -1,0 +1,42 @@
+FROM node:14-alpine as client
+# FROM node:14-alpine as homeportal_front_dev
+
+# Expose ports
+EXPOSE 3000
+EXPOSE 35729
+
+WORKDIR /app
+
+# Copy package files and install app dependencies
+COPY ./frontend/package.json \
+    ./frontend/yarn.lock \
+    ./frontend/.prettierrc \
+    ./frontend/tsconfig.json \
+    ./frontend/public \
+    ./frontend/src \
+    ./
+
+RUN yarn install
+
+# Start the React app
+CMD ["yarn", "start"]
+
+# Create our image based on Python 3.8
+FROM python:3.8 as api
+
+# Expose ports
+EXPOSE 5000
+
+# Tell Python to not generate .pyc
+ENV PYTHONDONTWRITEBYTECODE 1
+
+# Turn off buffering
+ENV PYTHONUNBUFFERED 1
+
+# Install requirements using pip
+ADD backend/requirements.txt .
+RUN python -m pip install -r requirements.txt
+
+# Set working directory and addour Flask API files
+WORKDIR /app
+ADD backend/ /app

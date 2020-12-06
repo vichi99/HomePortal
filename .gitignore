@@ -118,6 +118,7 @@ celerybeat.pid
 
 # Environments
 .env
+.env.development
 .venv
 env/
 venv/
@@ -144,3 +145,6 @@ dmypy.json
 .pyre/
 
 foo*
+
+passwords
+

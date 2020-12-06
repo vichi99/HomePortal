@@ -1,32 +1,88 @@
 version: "3.8"
 services:
-  homeportal-front-dev:
+  hp_front:
     build:
       context: .
-      target: homeportal-front-dev
-    container_name: homeportal-front-dev
-    image: homeportal-front-dev
+      dockerfile: Dockerfile.dev
+      target: client
+    container_name: hp_front
+    image: hp_front
     ports:
       - "3000:3000"
+    environment:
+      - "REACT_APP_MQTT_HOST=wss://localhost:8883"
+      - "REACT_APP_MQTT_USER=test"
+      - "REACT_APP_MQTT_PASS=test"
     volumes:
       - ./frontend/:/app
       - /app/node_modules
     tty: true
-    stdin_open: true
-    # networks:
-    #   - host
-    # depends_on:
-    #   - mosquitto
-  # mosquitto:
-  #   container_name: mosquitto
-  #   image: eclipse-mosquitto:1.6.12
-  #   volumes:
-  #     - ./backend/mqtt/config:/mosquitto/config/
-  #   ports:
-  #     - "1883:1883"
-  #     - "8080:8080"
-  #   networks:
-  #     - default
-  #   restart: unless-stopped
+    networks:
+      - hp_frontend
+
+  hp_db:
+    image: mongo:3.6.21
+    container_name: hp_db
+    restart: unless-stopped
+    command: mongod --auth
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: "admin"
+      MONGO_INITDB_ROOT_PASSWORD: "admin"
+      MONGO_INITDB_DATABASE: hp_webapp
+      MONGODB_DATA_DIR: /data/db
+    volumes:
+      - hp_dbdata:/data/db
+    networks:
+      - hp_backend
+
+  hp_api:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+      target: api
+    container_name: hp_api
+    command: gunicorn --bind 0.0.0.0:5000 app:app
+    ports:
+      - "5000:5000"
+    environment:
+      MONGODB_HOST: hp_db
+      MONGODB_USERNAME: "admin"
+      MONGODB_PASSWORD: "admin"
+    volumes:
+      - hp_appdata:/var/www/
+    depends_on:
+      - hp_db
+    networks:
+      - hp_frontend
+      - hp_backend
+
+networks:
+  hp_frontend:
+    driver: bridge
+  hp_backend:
+    driver: bridge
+volumes:
+  hp_dbdata:
+    driver: local
+  hp_appdata:
+    driver: local
 # networks:
-#   host:
+#   - host_dev
+#     depends_on:
+#       - mosquitto_dev
+#   mosquitto_dev:
+#     container_name: mosquitto_dev
+#     image: eclipse-mosquitto:1.6.12
+#     volumes:
+#       - ./backend/mqtt/data:/mosquitto/data
+#       - ./backend/mqtt/log:/mosquitto/log
+#       - ./backend/mqtt/config/mosquitto.conf:/mosquitto/config/mosquitto.conf
+#       - ./backend/mqtt/config/passwords.dev:/mosquitto/config/passwords
+#     ports:
+#       - "1883:1883"
+#       - "9001:9001"
+#     networks:
+#       - host_dev
+#     restart: unless-stopped
+# networks:
+#   host_dev:

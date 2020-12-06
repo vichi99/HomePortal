@@ -8,9 +8,9 @@ import { TOPICS_ROOM } from "../conf/constants";
 const Home = () => {
     return (
         <div className="home">
-            {TOPICS_ROOM.map((room, index) => (
+            {/* {TOPICS_ROOM.map((room, index) => (
                 <Room key={index} setting={room} ></Room>
-            ))}
+            ))} */}
         </div>
     )
 }
