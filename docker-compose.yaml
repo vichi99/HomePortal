@@ -1,7 +1,7 @@
 version: "3.8"
 services:
   mqtt:
-    container_name: mqtt_dev
+    container_name: mqtt
     image: eclipse-mosquitto:2.0.12
     volumes:
       - ./mqtt/data:/mosquitto/data
@@ -10,5 +10,7 @@ services:
     ports:
       - "1883:1883"
       - "9001:9001"
-    tty: true
-    stdin_open: true
+networks:
+  default:
+    external:
+      name: notdevs_proxy

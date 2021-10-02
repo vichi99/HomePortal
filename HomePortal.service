@@ -1,0 +1,11 @@
+[Unit]
+Description=HomePortal service
+After=docker.service
+
+[Service]
+WorkingDirectory=/root/HomePortal
+ExecStart=/usr/local/bin/docker-compose up
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
