@@ -1,4 +1,7 @@
 # HomePortal
+## Dependcies
+- Make password file for mqtt.
+- Check config file for mqtt.
 ## Develop
 - run
 ```sh
