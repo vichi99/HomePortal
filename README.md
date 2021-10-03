@@ -15,8 +15,8 @@ $ sudo systemctl start home_portal.service
 ```
 ## MQTT Broker
 ### Description
-This is a [MQTT mosquitto](https://mosquitto.org/) broker hosted on server. 
-### Password
+This is a classic [MQTT mosquitto](https://mosquitto.org/) broker hosted on server. 
+### Login and Password
 - After change password file you should restart the container.
 - Tips: [http://www.steves-internet-guide.com/mqtt-username-password-example/](http://www.steves-internet-guide.com/mqtt-username-password-example/)
 - You can use `mosquitto_passwd` command at the docker like:
