@@ -85,3 +85,4 @@ venv.bak/
 foo*
 passwords
 mosquitto.db
+.env

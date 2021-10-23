@@ -1,14 +1,30 @@
 version: "3.8"
 services:
-  mqtt:
-    container_name: mqtt_dev
+  hp_mqtt_broker_dev:
+    container_name: hp_mqtt_broker_dev
     image: eclipse-mosquitto:2.0.12
     volumes:
-      - ./mqtt/data:/mosquitto/data
-      - ./mqtt/log:/mosquitto/log
-      - ./mqtt/config/:/mosquitto/config
+      - ./mqtt_broker/data:/mosquitto/data
+      - ./mqtt_broker/log:/mosquitto/log
+      - ./mqtt_broker/config/:/mosquitto/config
     ports:
       - "1883:1883"
       - "9001:9001"
+    tty: true
+    stdin_open: true
+  hp_monika_bot_dev:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: telegram_bot
+    container_name: hp_monika_bot_dev
+    environment:
+      MQTT_KEEPALIVE: 60
+      LIMIT_MESSAGE_SECOND: 20
+
+    volumes:
+      - ./monika_bot:/usr/src/app
+    depends_on:
+      - hp_mqtt_broker_dev
     tty: true
     stdin_open: true
