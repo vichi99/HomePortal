@@ -31,7 +31,9 @@ LOGGER.info("Starting telegram bot")
 # start client
 mqtt_client = mqtt.Client()
 mqtt_client.username_pw_set(MQTT_USERNAME, MQTT_PASSWORD)
-mqtt_client.connect(MQTT_IP, MQTT_PORT, MQTT_KEEPALIVE)
+# mqtt_client.connect(MQTT_IP, MQTT_PORT, MQTT_KEEPALIVE)
+mqtt_client.connect_async(MQTT_IP, MQTT_PORT, MQTT_KEEPALIVE)
+mqtt_client.loop_start()
 LOGGER.info("Connected to mqtt broker")
 
 # make telegram bot

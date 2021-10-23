@@ -21,7 +21,6 @@ services:
     environment:
       MQTT_KEEPALIVE: 60
       LIMIT_MESSAGE_SECOND: 20
-
     volumes:
       - ./monika_bot:/usr/src/app
     depends_on:
