@@ -64,7 +64,7 @@ def on_message(client: mqtt.Client, userdata, msg: mqtt.MQTTMessage):
                     actual_chat_id = 0
                 except telebot.apihelper.ApiTelegramException:
                     LOGGER.error(
-                        f"Send  led value message to telegram failed.",
+                        f"Send led value message to telegram failed.",
                         f" Chat ID: {actual_chat_id}",
                         exc_info=True,
                     )
@@ -79,7 +79,7 @@ def on_message(client: mqtt.Client, userdata, msg: mqtt.MQTTMessage):
                     try:
                         bot.send_message(
                             actual_chat_id,
-                            f"Successfully timer set to {income_led_timer_off_status}.",
+                            f"Successfully timer off set to {income_led_timer_off_status}.",
                         )
                         actual_chat_id = 0
                     except telebot.apihelper.ApiTelegramException:
@@ -180,7 +180,41 @@ def check_already_set_timer_off(value: str):
         )
 
 
-def handling_message_for_led(message: telebot.types.Message):
+def check_time_format(value: str) -> bool:
+    """
+    Control income time format for set timer switching off led.
+
+    :param str value: String time `5:06`, `23:59`.
+    :return: Return True if format is valid
+    :rtype: bool
+    """
+    try:
+        hours, minutes = value.split(":")
+        assert 1 <= len(hours) <= 2
+        assert len(minutes) == 2
+        assert 0 <= int(hours) <= 23
+        assert 0 <= int(minutes) <= 59
+        return True
+    except (TypeError, ValueError, AssertionError, AttributeError):
+        LOGGER.warning(f"Bad income time format: {value}")
+        return False
+
+
+def set_timer_off(message: telebot.types.Message):
+    """
+    Handle message for setting timer off on the Monika bed.
+
+    :param message: Income message from telegram.
+    :type message: telebot.types.Message
+    """
+    global actual_chat_id
+    actual_chat_id = message.chat.id
+    mqtt_client.publish(TOPIC_LED_TIMER_OFF, str(message.text), qos=1, retain=True)
+    LOGGER.info(f"Published timer off value to: {message.text}.")
+    check_already_set_timer_off(message.text)
+
+
+def handling_messages(message: telebot.types.Message):
     """
     Handle message for setting's led on the Monika bed.
 
@@ -217,46 +251,16 @@ def handling_message_for_led(message: telebot.types.Message):
         )
 
         bot.send_message(message.chat.id, msg)
-
-
-def check_time_format(value: str) -> bool:
-    """
-    Control income time format for set timer switching off led.
-
-    :param str value: String time `5:06`, `23:59`.
-    :return: Return True if format is valid
-    :rtype: bool
-    """
-    try:
-        hours, minutes = value.split(":")
-        assert 1 <= len(hours) <= 2
-        assert len(minutes) == 2
-        assert 0 <= int(hours) <= 23
-        assert 0 <= int(minutes) <= 59
-        return True
-    except (TypeError, ValueError, AssertionError, AttributeError):
-        LOGGER.warning(f"Bad income time format: {value}")
-        return False
-
-
-def handling_message_set_timer_off(message: telebot.types.Message):
-    """
-    Handle message for setting timer off on the Monika bed.
-
-    :param message: Income message from telegram.
-    :type message: telebot.types.Message
-    """
-    if check_time_format(message.text):
-        global actual_chat_id
-        actual_chat_id = message.chat.id
-        mqtt_client.publish(TOPIC_LED_TIMER_OFF, str(message.text), qos=1, retain=True)
-        LOGGER.info(f"Published timer off value to: {message.text}.")
-        check_already_set_timer_off(message.text)
-
-
-@bot.message_handler(commands=["start"])
-def start_message(message):
-    bot.send_message(message.chat.id, "Hello!", reply_markup=keyboard)
+    elif check_time_format(message.text):
+        set_timer_off(message)
+    else:
+        msg = (
+            "Ahoj\n"
+            + "Zadán nesprávný příkaz.\n"
+            + "Ovládání je pomocí tlačítek níže. Pro nastavení času vypnutí "
+            + "napiš konkretní čas např. 15:05",
+        )
+        bot.send_message(message.chat.id, msg, reply_markup=keyboard)
 
 
 @bot.message_handler(content_types=["text"])
@@ -269,8 +273,7 @@ def send_text(message: telebot.types.Message):
     """
     if not is_auth_user(message) or not is_message_old(message):
         return
-    handling_message_for_led(message)
-    handling_message_set_timer_off(message)
+    handling_messages(message)
 
 
 bot.polling()
