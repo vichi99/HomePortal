@@ -1,7 +1,8 @@
 # HomePortal
 ## Dependcies
-- Make password file for mqtt.
-- Check config file for mqtt.
+- [Make password](#login-and-password) file for mqtt.
+- Check config file for mqtt at `mqtt_broker/config/mosquitto.conf`.
+- Make `.env` file for `monika_bot` at [this section](#monika-bot)
 ## Develop
 - run
 ```sh
@@ -28,14 +29,20 @@ This is a classic [MQTT mosquitto](https://mosquitto.org/) broker hosted on serv
     ```
 #### Clear file and create new user
 ```sh
-mosquitto_passwd -c /mosquitto/config/passwords username
+$ mosquitto_passwd -c /mosquitto/config/passwords username
 ```
 #### Delete user from file
 ```sh
-mosquitto_passwd -D /mosquitto/config/passwords username
+$ mosquitto_passwd -D /mosquitto/config/passwords username
 ```
 #### Add user to file
 ```sh
-mosquitto_passwd /mosquitto/config/passwords username
+$ mosquitto_passwd /mosquitto/config/passwords username
 ```
-
+## Monika bot
+This is telegram bot for controll [monika`s led bed.](https://github.com/vichi99/MicroPython/tree/master/led_bed)
+### dependencies
+```sh
+$ cp monika_bot/.env_example monika_bot/.env
+```
+-![monika_bot](monika_bot/monika_bot.png)
