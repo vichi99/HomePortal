@@ -10,6 +10,7 @@ services:
     ports:
       - "1883:1883"
       - "9001:9001"
+    restart: on-failure
     tty: true
 
   hp_monika_bot:
@@ -18,13 +19,11 @@ services:
       dockerfile: Dockerfile
       target: telegram_bot
     container_name: hp_monika_bot
-    environment:
-      MQTT_KEEPALIVE: 60
-      LIMIT_MESSAGE_SECOND: 20
     volumes:
       - ./monika_bot:/usr/src/app
     depends_on:
       - hp_mqtt_broker
+    restart: on-failure
     tty: true
 
 networks:
