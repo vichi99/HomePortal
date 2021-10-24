@@ -51,7 +51,7 @@ def on_message(client: mqtt.Client, userdata, msg: mqtt.MQTTMessage):
         try:
             global income_led_status, actual_chat_id
             income_led_status = int(msg.payload)
-            LOGGER.warning(f"INCOME: {income_led_status}, {actual_chat_id}")
+            LOGGER.info(f"Income led status: {income_led_status}")
             if actual_chat_id:
                 try:
                     bot.send_message(
