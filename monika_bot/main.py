@@ -39,7 +39,7 @@ LOGGER.info("Starting monika bot")
 bot = telebot.TeleBot(TELEGRAM_TOKEN)
 keyboard = telebot.types.ReplyKeyboardMarkup(True)
 keyboard.row("Off", "Status")
-keyboard.row("1%", "5%", "50%", "100%")
+keyboard.row("1%", "5%", "15%", "50%", "100%")
 
 # The callback for when the client receives a CONNACK response from the server.
 def on_connect(client, userdata, flags, rc):
@@ -235,6 +235,10 @@ def handling_messages(message: telebot.types.Message):
         actual_chat_id = message.chat.id
         set_led_percent(5)
         check_already_set_led_value(5)
+    elif message.text == "15%":
+        actual_chat_id = message.chat.id
+        set_led_percent(15)
+        check_already_set_led_value(15)
     elif message.text == "50%":
         actual_chat_id = message.chat.id
         set_led_percent(50)
