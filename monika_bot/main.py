@@ -32,13 +32,15 @@ TOPIC_LED_TIMER_OFF_STATUS = os.getenv("TOPIC_LED_TIMER_OFF_STATUS")
 income_led_status = 0
 income_led_timer_off_status = ""
 actual_chat_id = 0
+step_monika = 0
+step_jan = 0
 
 LOGGER.info("Starting monika bot")
 
 # make telegram bot
 bot = telebot.TeleBot(TELEGRAM_TOKEN)
 keyboard = telebot.types.ReplyKeyboardMarkup(True)
-keyboard.row("Off", "Status")
+keyboard.row("Off", "Status", "Krok")
 keyboard.row("1%", "5%", "15%", "50%", "100%")
 
 # The callback for when the client receives a CONNACK response from the server.
@@ -247,11 +249,20 @@ def handling_messages(message: telebot.types.Message):
         actual_chat_id = message.chat.id
         set_led_percent(100)
         check_already_set_led_value(100)
+    elif message.text == "Krok":
+        global step_jan, step_monika
+        if message.chat.id == AUTH_USERS.get("jan"):
+            step_jan += 1
+            bot.send_message(message.chat.id, f"Počet kroků pro Jan {step_jan}")
+        elif message.chat.id == AUTH_USERS.get("monika"):
+            step_monika += 1
+            bot.send_message(message.chat.id, f"Počet kroků pro Monika {step_monika}")
     elif message.text == "Status":
         msg = (
             f"Led: {income_led_status}% ; "
             + f"Timer off: {income_led_timer_off_status}"
             + f"\nPro nastavení vypnutí napíš např. 23:05"
+            + f"\nJan: {step_jan}, Monika: {step_monika}"
         )
 
         bot.send_message(message.chat.id, msg)
