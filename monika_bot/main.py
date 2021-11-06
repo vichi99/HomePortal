@@ -2,6 +2,7 @@ import json
 import logging
 import os
 from datetime import datetime, timedelta
+from time import sleep
 
 import paho.mqtt.client as mqtt
 import telebot
@@ -291,4 +292,10 @@ def send_text(message: telebot.types.Message):
     handling_messages(message)
 
 
-bot.polling()
+# Issue: https://github.com/eternnoir/pyTelegramBotAPI/issues/983#issuecomment-706699601
+while True:
+    try:
+        bot.polling()
+    except Exception as e:
+        LOGGER.exception(e, exc_info=True)
+        sleep(30)
