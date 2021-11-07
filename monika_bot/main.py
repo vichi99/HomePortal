@@ -25,12 +25,14 @@ MQTT_PORT = int(os.getenv("MQTT_PORT"))
 MQTT_KEEPALIVE = int(os.getenv("MQTT_KEEPALIVE"))
 TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
 LIMIT_MESSAGE_SECOND = int(os.getenv("LIMIT_MESSAGE_SECOND"))
+TOPIC_DEVICE_STATUS = os.getenv("TOPIC_DEVICE_STATUS")
 TOPIC_LED_SET = os.getenv("TOPIC_LED_SET")
 TOPIC_LED_STATUS = os.getenv("TOPIC_LED_STATUS")
 TOPIC_LED_TIMER_OFF = os.getenv("TOPIC_LED_TIMER_OFF")
 TOPIC_LED_TIMER_OFF_STATUS = os.getenv("TOPIC_LED_TIMER_OFF_STATUS")
 
 income_led_status = 0
+income_device_status = 0
 income_led_timer_off_status = ""
 actual_chat_id = 0
 step_monika = 0
@@ -50,6 +52,7 @@ def on_connect(client, userdata, flags, rc):
 
     client.subscribe(TOPIC_LED_STATUS)
     client.subscribe(TOPIC_LED_TIMER_OFF_STATUS)
+    client.subscribe(TOPIC_DEVICE_STATUS)
 
 
 # The callback for when a PUBLISH message is received from the server.
@@ -93,6 +96,15 @@ def on_message(client: mqtt.Client, userdata, msg: mqtt.MQTTMessage):
                         )
         except ValueError:
             LOGGER.error(f"Value error '{msg.payload}' for topic: {TOPIC_LED_STATUS}")
+    elif msg.topic == TOPIC_DEVICE_STATUS:
+        global income_device_status
+        try:
+            income_device_status = int(msg.payload)
+            LOGGER.info(f"Income device status: {income_device_status}")
+        except ValueError:
+            LOGGER.error(
+                f"Value error '{msg.payload}' for topic: {TOPIC_DEVICE_STATUS}"
+            )
 
 
 def on_disconnect(client, userdata, msg):
@@ -260,7 +272,8 @@ def handling_messages(message: telebot.types.Message):
             bot.send_message(message.chat.id, f"Počet kroků pro Monika {step_monika}")
     elif message.text == "Status":
         msg = (
-            f"Led: {income_led_status}% ; "
+            f'{"Device is online" if income_device_status else "Device is offline"}\n'
+            + f"Led: {income_led_status}% ; "
             + f"Timer off: {income_led_timer_off_status}"
             + f"\nPro nastavení vypnutí napíš např. 23:05"
             + f"\nJan: {step_jan}, Monika: {step_monika}"
