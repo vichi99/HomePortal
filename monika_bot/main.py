@@ -238,7 +238,10 @@ def handling_messages(message: telebot.types.Message):
     """
     global actual_chat_id
 
-    if message.text.lower() == "off":
+    if not income_device_status:
+        msg = "Device is offline :("
+        bot.send_message(message.chat.id, msg)
+    elif message.text.lower() == "off":
         actual_chat_id = message.chat.id
         set_led_percent(0)
         check_already_set_led_value(0)
